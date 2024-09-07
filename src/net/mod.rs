@@ -2,7 +2,7 @@
 
 use crate::config;
 use crate::packet::{Packet, PacketId};
-use log::{debug, warn};
+use log::{debug, error, warn};
 use std::net::SocketAddr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
