@@ -145,6 +145,7 @@ white-list=false"#;
         )
     }
 }
+<<<<<<< HEAD
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -214,5 +215,6 @@ pub mod ping_slp {
         };
         // Description:
         let description_text = config::Settings::new().motd;
+
     }
 }

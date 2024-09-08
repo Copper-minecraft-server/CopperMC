@@ -1,7 +1,5 @@
 //! This module is the interface between the server.properties file. Querying for server settings.
-// !TODO generator_settings
-// !Todo text-filtering-config
-// use dot_properties::{read_properties, Properties};
+
 use std::fs::File;
 use std::io::BufReader;
 use std::io::{Error, ErrorKind};
@@ -10,7 +8,9 @@ use std::path::Path;
 
 use read_properties::Properties;
 pub mod read_properties;
-//use std::sync::Arc;
+
+// TODO:  generator_settings
+// TODO:  text-filtering-config
 
 /// Function to get a `Properties` object to which the caller can then query keys.
 ///
