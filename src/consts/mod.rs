@@ -145,16 +145,22 @@ white-list=false"#;
         )
     }
 }
+
 pub mod ping_slp {
     use crate::config;
 
     use super::minecraft::{PROTOCOL_VERSION, VERSION};
-    ///return the json which will be send as a response of the ping to the CLI.
-    pub fn JSON_response() -> () {
-        // For the version like 1.21.1,767.
+    /// Returns the JSON Server List Ping response.
+    pub fn JSON_response() -> String {
+        // For the version like 1.21.1, 767.
         let version_name = VERSION;
         let version_protocol = PROTOCOL_VERSION;
+
+        let config = config::Settings::new();
+
         // For the players.
-        let player_max = config::Settings::new().max_players();
+        let max_players: u32 = config.max_players;
+
+        "{}".to_string()
     }
 }
