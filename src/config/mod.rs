@@ -56,7 +56,7 @@ pub struct Settings {
     enable_query: bool,
     enforce_secure_profile: bool,
     level_name: Option<String>,
-    motd: Option<String>,
+    pub motd: Option<String>,
     query_port: u16,
     pvp: bool,
     generate_structures: bool,

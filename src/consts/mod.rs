@@ -145,16 +145,74 @@ white-list=false"#;
         )
     }
 }
-pub mod ping_slp {
-    use crate::config;
+use serde::Serialize;
 
-    use super::minecraft::{PROTOCOL_VERSION, VERSION};
-    ///return the json which will be send as a response of the ping to the CLI.
-    pub fn JSON_response() -> () {
+#[derive(Serialize)]
+pub struct Versionmc {
+    name: String,
+    protocol: usize,
+}
+
+#[derive(Serialize)]
+pub struct PlayerSample {
+    name: String,
+    id: String,
+}
+
+#[derive(Serialize)]
+pub struct Players {
+    max: u32,
+    online: u32,
+    sample: Vec<PlayerSample>,
+}
+
+#[derive(Serialize)]
+pub struct Description {
+    text: String,
+}
+
+#[derive(Serialize)]
+pub struct PingResponse {
+    version: Version,
+    players: Players,
+    description: Description,
+    favicon: Option<String>,
+    enforces_secure_chat: bool,
+}
+
+pub mod ping_slp {
+    use crate::{config, player::get_uuid};
+
+    use super::{
+        minecraft::{PROTOCOL_VERSION, VERSION},
+        Description, PlayerSample, Players, Versionmc,
+    };
+
+    /// Return the json which will be send as a response of the ping to the client.
+
+    pub async fn json_response() -> () {
         // For the version like 1.21.1,767.
-        let version_name = VERSION;
-        let version_protocol = PROTOCOL_VERSION;
+        let version = Versionmc {
+            name: VERSION.to_string(),
+            protocol: PROTOCOL_VERSION,
+        };
         // For the players.
-        let player_max = config::Settings::new().max_players();
+        let sample = vec![PlayerSample {
+            name: "spectre".to_string(),
+            id: match get_uuid("todo").await {
+                Ok(body) => body,
+                Err(_) => String::from("not found"),
+            },
+        }];
+        let player = Players {
+            max: config::Settings::new().max_players,
+            online: 5, //todo
+            sample,
+        };
+        let descritpion = Description {
+            text: config::Settings::new().motd,
+        };
+        // Description:
+        let description_text = config::Settings::new().motd;
     }
 }
