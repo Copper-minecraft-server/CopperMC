@@ -7,6 +7,7 @@ use std::net::SocketAddr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;
+use tokio::sync::mpsc::error;
 
 /// Global buffer size when allocating a new packet (in bytes).
 const BUFFER_SIZE: usize = 1024;
@@ -28,12 +29,76 @@ pub async fn listen() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// State of each connection. (e.g.: handshake, play, ...)
+#[derive(Debug, PartialEq)]
 enum ConnectionState {
     Handshake,
+    Status,
+    Login,
+    Play,
+    Transfer,
 }
 
-/// Object representing a TCP connection.
-struct Connection {}
+impl ConnectionState {
+    /// By default, the connection state is Handshaking.
+    fn new() -> Self {
+        Self::Handshake
+    }
+}
+
+/// Allows correspondence between a Packet and a ConnectionState.
+/// The meaning of a packet depends both on its packet ID and the current state of the connection.
+///
+/// # Usage
+///
+/// ```
+/// let state = ConnectionState::new(); // This is of state ConnectionState::Handshake
+///
+/// // Let's assume we have a packet named `packet` of ID 0x00.
+///
+/// let new_state = ConnectionState::try_from_packet(state, &packet); // This will be Ok(ConnectionState::Login) if valid.
+/// ```
+impl ConnectionState {
+    fn try_from_packet(last_state: Self, packet: &Packet) -> Result<Self, ConnectionStateError> {
+        match last_state {
+            ConnectionState::Handshake => {
+                if packet.get_id().get_value() == 0x00 {
+                    Ok(Self::Login)
+                } else {
+                    Err(ConnectionStateError::InvalidId)
+                }
+            }
+            ConnectionState::Status => todo!(),
+            ConnectionState::Login => todo!(),
+            ConnectionState::Play => todo!(),
+            ConnectionState::Transfer => todo!(),
+        }
+    }
+}
+
+#[derive(Error, Debug)]
+pub enum ConnectionStateError {
+    #[error("Failed to get correspondance between packet ID and connection state.")]
+    InvalidId,
+}
+
+// TODO: Make a struct MinecraftServer. Make a connections: Arc Mutex Hashmap u32 Connection and next_id: u32.
+// And the logic to listen for packets etc.
+// Or think about some other design pattern to be the basis of our server to listen for packets.
+
+/// Represents a TCP connection with a client.
+struct Connection {
+    state: ConnectionState,
+    stream: TcpStream,
+}
+
+impl Connection {
+    pub fn new(stream: TcpStream) -> Self {
+        Self {
+            state: ConnectionState::new(),
+            stream,
+        }
+    }
+}
 
 /// Handles each connection
 async fn handle_connection(
